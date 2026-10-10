@@ -19,7 +19,9 @@ try {
     $asset = 'platform-win-x64.zip'
     $archive = Join-Path $stage $asset
     Invoke-WebRequest "$repository/releases/download/$Version/$asset" -OutFile $archive -UseBasicParsing
-    $checksums = (Invoke-WebRequest "$repository/releases/download/$Version/SHA256SUMS" -UseBasicParsing).Content
+    $checksumFile = Join-Path $stage 'SHA256SUMS'
+    Invoke-WebRequest "$repository/releases/download/$Version/SHA256SUMS" -OutFile $checksumFile -UseBasicParsing
+    $checksums = Get-Content -LiteralPath $checksumFile -Raw
     $matches = @($checksums -split '\r?\n' | Where-Object { $_ -cmatch '^[0-9a-f]{64}  platform-win-x64\.zip$' })
     if ($matches.Count -ne 1) { throw 'Missing or ambiguous checksum.' }
     $expected = $matches[0].Substring(0, 64)
