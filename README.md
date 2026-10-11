@@ -40,6 +40,25 @@ runtime; developers do not need the .NET SDK, Azure CLI or registry credentials.
 
 ## Configure and deploy
 
+Release v0.1.4 adds application status, deployment history and resource metrics:
+
+```sh
+platform status
+platform status --history
+platform status <operation-id> --json
+platform metrics --since 1h
+platform metrics --component worker:background --environment production
+platform metrics --component web --replica <id> --since 24h --json
+```
+
+Status combines current hosting observations with the recorded deployment result.
+Metrics report CPU and memory percentages using each revision's allocation,
+per-replica peaks, restart observations and web request/5xx data. Missing data is
+reported explicitly. JSON stdout contains one response document; sign-in messages
+go to stderr. These commands require app developer membership. See the
+[status and metrics contract](https://github.com/pqs-ch/platform/blob/main/docs/status-metrics.md)
+for aggregation, coverage and limitations.
+
 CLI builds with interactive-console support also provide:
 
 ```sh
@@ -50,10 +69,14 @@ platform exec --component worker:background --replica <id> --environment product
   --executable /app/console
 ```
 
-Use a replica ID returned by discovery. Both selections are required. Exec always
+Component is required. Release v0.1.4 selects the only running replica when
+`--replica` is omitted, list IDs and exit when multiple replicas are running, and
+report none available when there are zero. Use `--replica <id>` from discovery
+to select explicitly; v0.1.3 requires this option even for one replica. Exec always
 opens an interactive terminal, defaults to `/bin/sh`, and accepts a single
 installed shell/console executable override. Ctrl+C interrupts that process;
-Ctrl+] disconnects. No replica is chosen automatically and no session reconnects.
+Ctrl+] disconnects. Once selected, the session stays pinned to that replica and
+never reconnects or falls back to another.
 Developer-group membership and the environment's enabled-write gate authorize
 console access through the Platform API. The operator must apply the app's
 updated console permissions. See the Platform repository's
