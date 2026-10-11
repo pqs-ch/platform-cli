@@ -40,6 +40,12 @@ runtime; developers do not need the .NET SDK, Azure CLI or registry credentials.
 
 ## Configure and deploy
 
+Release v0.1.5 improves terminal output with aligned summaries, labeled details,
+readable UTC timestamps and memory units, and layouts for narrow terminals.
+Shared images are printed once with references; full IDs remain copyable.
+Deployment progress shows state changes followed by one complete result.
+JSON response output is unchanged. Rerun the installer to upgrade.
+
 Release v0.1.4 adds application status, deployment history and resource metrics:
 
 ```sh
