@@ -40,6 +40,14 @@ runtime; developers do not need the .NET SDK, Azure CLI or registry credentials.
 
 ## Configure and deploy
 
+Release v0.1.6 saves sign-in in an OS-protected token cache. After the first sign-in,
+commands reuse or silently refresh the session; Entra policy or consent may still
+require authentication. Developer and operator sessions are separate, and each
+environment/connection has its own cache. Add `--reauthenticate` to an API command
+to sign in again or switch accounts, for example `platform status --reauthenticate`.
+Unencrypted token storage is disabled; an available OS-protected storage backend
+is required. Rerun the installer to upgrade; saved connections are preserved.
+
 Release v0.1.5 improves terminal output with aligned summaries, labeled details,
 readable UTC timestamps and memory units, and layouts for narrow terminals.
 Shared images are printed once with references; full IDs remain copyable.
