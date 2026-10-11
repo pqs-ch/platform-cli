@@ -40,6 +40,27 @@ runtime; developers do not need the .NET SDK, Azure CLI or registry credentials.
 
 ## Configure and deploy
 
+CLI builds with interactive-console support also provide:
+
+```sh
+platform replicas --component web
+platform exec --component web --replica <id>
+platform replicas --component worker:background --environment production
+platform exec --component worker:background --replica <id> --environment production \
+  --executable /app/console
+```
+
+Use a replica ID returned by discovery. Both selections are required. Exec always
+opens an interactive terminal, defaults to `/bin/sh`, and accepts a single
+installed shell/console executable override. Ctrl+C interrupts that process;
+Ctrl+] disconnects. No replica is chosen automatically and no session reconnects.
+Developer-group membership and the environment's enabled-write gate authorize
+console access through the Platform API. The operator must apply the app's
+updated console permissions. See the Platform repository's
+[interactive console contract](https://github.com/pqs-ch/platform/blob/main/docs/development.md#interactive-consoles)
+for requirements and behavior. Release v0.1.3 includes these commands. Rerun the
+installer to upgrade older binaries; existing saved connections are preserved.
+
 Sign in to your organization's Portal and open **CLI setup**. Copy and run its
 `platform connect` command once for each environment you need. Use only connection
 values provided by your trusted operator or Portal.
