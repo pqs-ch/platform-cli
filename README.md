@@ -102,6 +102,20 @@ Sign in to your organization's Portal and open **CLI setup**. Copy and run its
 `platform connect` command once for each environment you need. Use only connection
 values provided by your trusted operator or Portal.
 
+Starting with v0.1.7, lock commands use the app's developer session by default:
+
+```sh
+platform lock status
+platform lock release --operation <operation-id> --reason "Reviewed deployment and data; safe to retry"
+```
+
+Developers can release only a completed, settled deployment after the API verifies
+that provisioning and migration work is no longer running. Missing records,
+partial activation and uncertain outcomes require operator review. Add `--operator`
+to either lock command to select the separate operator sign-in session. The API
+checks app developer or environment operator membership on every request. Release
+does not repair data or undo a migration, and never removes a teardown lock.
+
 Run from your app repository, containing `platform.app.yaml` and `Dockerfile`:
 
 ```sh
