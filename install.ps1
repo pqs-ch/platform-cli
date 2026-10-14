@@ -1,9 +1,23 @@
 param([string]$Version = 'latest', [switch]$NoPathUpdate)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64') {
-    throw 'This installer supports Windows x64. Use install.sh on macOS or Linux.'
+if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
+    throw 'This installer supports Windows x64 and ARM64. Use install.sh on macOS or Linux.'
 }
+function Get-PlatformWindowsRuntime {
+    param(
+        [string]$Architecture = $env:PROCESSOR_ARCHITECTURE,
+        [string]$NativeArchitecture = $env:PROCESSOR_ARCHITEW6432
+    )
+    # An emulated PowerShell process reports its own architecture; prefer the OS.
+    $architectureName = if ($NativeArchitecture) { $NativeArchitecture } else { $Architecture }
+    switch ($architectureName) {
+        'AMD64' { return 'win-x64' }
+        'ARM64' { return 'win-arm64' }
+        default { throw "Unsupported Windows architecture: $architectureName. Expected x64 or ARM64." }
+    }
+}
+$runtime = Get-PlatformWindowsRuntime
 $repository = 'https://github.com/pqs-ch/platform-cli'
 if ($Version -eq 'latest') {
     $release = Invoke-RestMethod 'https://api.github.com/repos/pqs-ch/platform-cli/releases/latest'
@@ -16,13 +30,14 @@ $null = New-Item -ItemType Directory -Force -Path $root
 $stage = Join-Path $root ('.install.' + [Guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $stage
 try {
-    $asset = 'platform-win-x64.zip'
+    $asset = "platform-$runtime.zip"
     $archive = Join-Path $stage $asset
     Invoke-WebRequest "$repository/releases/download/$Version/$asset" -OutFile $archive -UseBasicParsing
     $checksumFile = Join-Path $stage 'SHA256SUMS'
     Invoke-WebRequest "$repository/releases/download/$Version/SHA256SUMS" -OutFile $checksumFile -UseBasicParsing
     $checksums = Get-Content -LiteralPath $checksumFile -Raw
-    $matches = @($checksums -split '\r?\n' | Where-Object { $_ -cmatch '^[0-9a-f]{64}  platform-win-x64\.zip$' })
+    $checksumPattern = '^[0-9a-f]{64}  ' + [regex]::Escape($asset) + '$'
+    $matches = @($checksums -split '\r?\n' | Where-Object { $_ -cmatch $checksumPattern })
     if ($matches.Count -ne 1) { throw 'Missing or ambiguous checksum.' }
     $expected = $matches[0].Substring(0, 64)
     if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected) { throw 'Checksum verification failed.' }

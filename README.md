@@ -13,7 +13,7 @@ macOS (Apple Silicon or Intel) and Linux x64:
 curl -fsSL https://raw.githubusercontent.com/pqs-ch/platform-cli/main/install.sh | sh
 ```
 
-Windows x64, in PowerShell:
+Windows x64 or ARM64, in PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/pqs-ch/platform-cli/main/install.ps1 | iex
@@ -23,6 +23,8 @@ The scripts download the latest stable release and verify its SHA-256 checksum.
 They install for the current user without administrator privileges. On macOS and
 Linux, reopen your terminal if the installer adds the CLI directory to your shell
 profile. Rerun the same command to upgrade; your connections are preserved.
+On Windows, the installer selects the native OS architecture, including when
+PowerShell runs under emulation on ARM64.
 
 Install a specific version (also supports rollback):
 
