@@ -12,7 +12,7 @@ case "$(uname -s)/$(uname -m)" in
     Darwin/arm64) rid=osx-arm64 ;;
     Darwin/x86_64) rid=osx-x64 ;;
     Linux/x86_64) rid=linux-x64 ;;
-    *) echo "Unsupported system. Supported: macOS ARM64/Intel and Linux x64 (glibc)." >&2; exit 1 ;;
+    *) echo "Unsupported system. Supported: macOS ARM64/Intel and Linux x64." >&2; exit 1 ;;
 esac
 if [ "$version" = latest ]; then
     resolved=$(curl --proto '=https' --tlsv1.2 -fsSL -o /dev/null -w '%{url_effective}' "$repository/releases/latest")

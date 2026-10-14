@@ -7,7 +7,7 @@ membership; installing this CLI does not grant access.
 
 ## Install
 
-macOS (Apple Silicon or Intel) and Linux x64 with glibc:
+macOS (Apple Silicon or Intel) and Linux x64:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pqs-ch/platform-cli/main/install.sh | sh
@@ -35,23 +35,19 @@ curl -fsSL https://raw.githubusercontent.com/pqs-ch/platform-cli/main/install.sh
 ```
 
 There must be a published release before installation works. Docker with buildx
-is a separate prerequisite for building app images. The CLI includes its .NET
-runtime; Developers do not need the .NET SDK, Azure CLI or registry credentials.
+is a separate prerequisite for building app images. The Go CLI is a native
+executable; Developers do not need a language SDK, Azure CLI or registry credentials.
 
 ### Linux and WSL prerequisites
 
-Linux sign-in requires `libsecret-1.so.0`, a running D-Bus user session and an
-unlocked Secret Service keyring, such as GNOME Keyring. The CLI's bundled .NET
-runtime does not include these OS services. See the
-[libsecret documentation](https://gnome.pages.gitlab.gnome.org/libsecret/) for the
-Secret Service client library.
-
-On Ubuntu/Debian, install the library and, if your environment has no keyring,
-the keyring and D-Bus session packages:
+Linux sign-in requires a running D-Bus user session and an unlocked Secret Service
+keyring, such as GNOME Keyring. The CLI uses D-Bus directly; no libsecret C library
+is needed. On Ubuntu/Debian, install the keyring and D-Bus session packages if your
+environment does not already provide them:
 
 ```sh
 sudo apt update
-sudo apt install libsecret-1-0 gnome-keyring dbus-user-session
+sudo apt install gnome-keyring dbus-user-session
 ```
 
 Other distributions use their equivalent packages. Package installation alone
@@ -60,7 +56,7 @@ through your distribution's user-session setup before running API commands.
 
 WSL uses Linux token storage; it does not use the Windows credential store.
 Minimal WSL installations may have no D-Bus user session or keyring even after
-`libsecret` is installed. Ensure the CLI runs in the same user session as the
+the keyring packages are installed. Ensure the CLI runs in the same user session as the
 keyring, with the keyring unlocked. If you cannot provide these services in WSL,
 install and run the Windows CLI from PowerShell instead; Docker must be available
 there when building application images.
@@ -145,7 +141,7 @@ never reconnects or falls back to another.
 Developer-group membership and the environment's enabled-write gate authorize
 console access through the Platform API. The Operator must apply the app's
 updated console permissions. Exec requires interactive terminal input and output;
-Unix also requires `stty`, and Windows requires VT support. The console runs with
+Terminal modes are handled natively; Windows requires VT support. The console runs with
 the app's runtime permissions and can change its data. Rerun the installer to
 upgrade; saved connections are preserved.
 
